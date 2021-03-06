@@ -19,6 +19,24 @@ spec:
         image: nginx
         ports:
         - containerPort: 80
+        volumeMounts:
+          - mountPath: "/usr/share/nginx/html"
+            name: www-data
+      initContainers:
+        - name: website-git-cloner
+          image: alpine/git
+          args:
+            - clone
+            - --single-branch
+            - --
+            - https://github.com/dcorbe/website.git
+            - /data
+          volumeMounts:
+            - mountPath: /data
+              name: www-data
+      volumes:
+        - name: www-data
+          emptyDir: { }
 ---
 apiVersion: v1
 kind: Service
