@@ -2,5 +2,7 @@ configMapGenerator:
   - name: icecast-config
     files:
       - icecast.xml
+resources:
+  - icecast.yaml
 generatorOptions:
   disableNameSuffixHash: true
