@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tcp-services
+data:
+  8000: "default/icecast:8000"
+  8001: "default/icecast-dnas:8001"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: icecast
+  labels:
+    app: icecast
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: icecast
+  template:
+    metadata:
+      labels:
+        app: icecast
+    spec:
+      containers:
+      - name: icecast
+        image: dcorbe/icecast:latest
+        ports:
+        - containerPort: 8000
+        - containerPort: 8001
+        volumeMounts:
+          - mountPath: "/etc/icecast.xml"
+            name: icecast-config
+            subPath: "icecast.xml"
+      volumes:
+        - name: icecast-config
+          configMap:
+            name: icecast-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: icecast
+spec:
+  selector:
+    app: icecast
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: icecast-client
+  labels:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+spec:
+  type: LoadBalancer
+  selector:
+    app: icecast
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: icecast-dnas
+  labels:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+spec:
+  type: LoadBalancer
+  selector:
+    app: icecast
+  ports:
+    - protocol: TCP
+      port: 8001
+      targetPort: 8001
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: icecast
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: cast.corbe.net
+      http:
+        paths:
+          - backend:
+              serviceName: icecast
+              servicePort: 80

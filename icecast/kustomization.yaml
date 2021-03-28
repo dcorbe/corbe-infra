@@ -1,0 +1,6 @@
+configMapGenerator:
+  - name: icecast-config
+    files:
+      - icecast.xml
+generatorOptions:
+  disableNameSuffixHash: true

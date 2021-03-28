@@ -1,0 +1,64 @@
+ <icecast>
+  <location>Earth</location>
+  <admin>noc@corbe.net</admin>
+
+  <limits>
+  <clients>512</clients>
+  <sources>2</sources>
+  <queue-size>524288</queue-size>
+  <client-timeout>30</client-timeout>
+  <header-timeout>15</header-timeout>
+  <source-timeout>10</source-timeout>
+  <burst-on-connect>1</burst-on-connect>
+  <burst-size>65535</burst-size>
+  </limits>
+
+  <authentication>
+    <source-password>Source123</source-password>
+    <relay-password>Relay123</relay-password>
+    <admin-user>admin</admin-user>
+    <admin-password>b00fb00fb00f</admin-password>
+  </authentication>
+
+  <shoutcast-mount>/live.mp3</shoutcast-mount>
+
+  <directory>
+    <yp-url-timeout>15</yp-url-timeout>
+    <yp-url>http://dir.xiph.org/cgi-bin/yp-cgi</yp-url>
+  </directory>
+
+  <hostname>cast.corbe.net</hostname>
+
+  <listen-socket>
+    <port>8000</port>
+    <shoutcast-mount>/live.mp3</shoutcast-mount>
+  </listen-socket>
+
+  <http-headers>
+    <header name="Access-Control-Allow-Origin" value="*" />
+  </http-headers>
+
+  <fileserve>1</fileserve>
+
+  <paths>
+    <basedir>/usr/share/icecast</basedir>
+    <logdir>/var/log/icecast</logdir>
+    <webroot>/usr/share/icecast/web</webroot>
+    <adminroot>/usr/share/icecast/admin</adminroot>
+  </paths>
+
+  <logging>
+    <accesslog>access.log</accesslog>
+    <errorlog>error.log</errorlog>
+    <loglevel>3</loglevel> <!-- 4 Debug, 3 Info, 2 Warn, 1 Error -->
+    <logsize>10000</logsize> <!-- Max size of a logfile -->
+  </logging>
+
+  <security>
+    <chroot>0</chroot>
+    <changeowner>
+      <user>icecast</user>
+      <group>icecast</group>
+    </changeowner>
+    </security>
+  </icecast>
