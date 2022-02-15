@@ -71,12 +71,13 @@ spec:
       initContainers:
         - name: website-git-cloner
           image: alpine/git
-          args:
-            - clone
-            - --single-branch
-            - --
-            - https://github.com/dcorbe/website.git
-            - /data
+          command:
+            - /bin/sh
+            - -c
+            - |
+              if [ ! "$(ls -A /data)"]; then
+                git clone --single-branch -- https://github.com/dcorbe/website.git /data
+              fi
           volumeMounts:
             - mountPath: /data
               name: www-data
