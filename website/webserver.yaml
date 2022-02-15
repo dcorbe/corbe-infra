@@ -119,9 +119,10 @@ metadata:
   name: nginx-ingress
   annotations:
     kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/server-alias: www.corbe.net
 spec:
   rules:
-  - host: www.corbe.net
+  - host: corbe.net
     http:
       paths:
         - pathType: Prefix
