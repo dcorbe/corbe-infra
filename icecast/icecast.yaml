@@ -37,6 +37,37 @@ spec:
           configMap:
             name: icecast-config
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: icecast-source-proxy
+  labels:
+    app: icecast-source-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: icecast-source-proxy
+  template:
+    metadata:
+      labels:
+        app: icecast-source-proxy
+    spec:
+      containers:
+        - name: icecast-source-proxy
+          image: nginx:mainline-alpine
+          ports:
+            - containerPort: 8000
+            - containerPort: 8001
+          volumeMounts:
+            - mountPath: "/etc/nginx/nginx.conf"
+              name: icecast-source-proxy-config
+              subPath: "nginx.conf"
+      volumes:
+        - name: icecast-source-proxy-config
+          configMap:
+            name: icecast-source-proxy-config
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -54,7 +85,7 @@ kind: Service
 metadata:
   name: icecast-source
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: icecast
   ports:
@@ -68,13 +99,31 @@ kind: Service
 metadata:
   name: icecast-dnas
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: icecast
   ports:
     - protocol: TCP
       port: 8001
       targetPort: 8001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: icecast-proxy
+spec:
+  type: LoadBalancer
+  selector:
+    app: icecast-source-proxy
+  ports:
+    - protocol: TCP
+      port: 8001
+      targetPort: 8001
+      name: port-dnas
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+      name: port-source
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress

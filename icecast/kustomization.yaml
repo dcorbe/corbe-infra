@@ -2,6 +2,9 @@ configMapGenerator:
   - name: icecast-config
     files:
       - icecast.xml
+  - name: icecast-source-proxy-config
+    files:
+      - nginx.conf
 resources:
   - icecast.yaml
 generatorOptions:
