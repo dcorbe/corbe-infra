@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: tcp-services
 data:
-  8000: "default/icecast:8000"
+  8000: "default/icecast-source:8000"
   8001: "default/icecast-dnas:8001"
 ---
 apiVersion: apps/v1
@@ -52,10 +52,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: icecast-client
-  labels:
-    app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: ingress-nginx
+  name: icecast-source
 spec:
   type: LoadBalancer
   selector:
@@ -64,14 +61,12 @@ spec:
     - protocol: TCP
       port: 8000
       targetPort: 8000
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: icecast-dnas
-  labels:
-    app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: ingress-nginx
 spec:
   type: LoadBalancer
   selector:
@@ -81,17 +76,28 @@ spec:
       port: 8001
       targetPort: 8001
 ---
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: icecast
   annotations:
-    kubernetes.io/ingress.class: nginx
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/issuer: "letsencrypt-production"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
+  tls:
+    - hosts:
+        - cast.corbe.net
+      secretName: cast-tls
   rules:
     - host: cast.corbe.net
       http:
         paths:
-          - backend:
-              serviceName: icecast
-              servicePort: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: icecast
+                port:
+                  number: 80
+
