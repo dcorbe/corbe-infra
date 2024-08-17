@@ -1,0 +1,19 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg 
+spec:
+  instances: 3
+  storage:
+    storageClass: zfspv
+    size: 10Gi
+  bootstrap:
+    initdb:
+      database: app
+      owner: app
+  resources:
+    requests:
+      memory: "1024Mi"
+      cpu: "1000m"
+    limits:
+      memory: "4096Mi"
