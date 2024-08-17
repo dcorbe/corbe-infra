@@ -1,0 +1,49 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: registry
+  annotations:
+    cert-manager.io/issuer: "letsencrypt-production"
+    nginx.ingress.kubernetes.io/proxy-body-size: "4096m"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - docker.corbe.net
+      secretName: docker-tls
+  rules:
+    - host: docker.corbe.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: registry
+                port:
+                  number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: registry-ui
+  annotations:
+    cert-manager.io/issuer: "letsencrypt-production"
+    nginx.ingress.kubernetes.io/proxy-body-size: "4096m"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - registry.corbe.net
+      secretName: docker-ui-tls
+  rules:
+    - host: registry.corbe.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: registry-ui
+                port:
+                  number: 80

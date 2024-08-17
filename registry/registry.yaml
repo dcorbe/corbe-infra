@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: registry
+spec:
+  selector:
+    matchLabels:
+      app: registry
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: registry
+    spec:
+      containers:
+        - image: registry:2
+          imagePullPolicy: Always
+          name: docker-registry
+          ports:
+            - containerPort: 5000
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "4096Mi"
+          volumeMounts:
+            - mountPath: /var/lib/registry
+              name: registry-vol
+          env:
+            - name: REGISTRY_HTTP_HEADERS_Access-Control-Origin
+              value: "['*']"
+            - name: REGISTRY_STORAGE_DELETE_ENABLED
+              value: "true"
+            - name: REGISTRY_HTTP_HEADERS_Access-Control-Allow-Methods
+              value: "[HEAD,GET,OPTIONS,DELETE]"
+      volumes:
+        - name: registry-vol
+          persistentVolumeClaim:
+            claimName: registry-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: registry-ui
+spec:
+  selector:
+    matchLabels:
+      app: registry-ui
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: registry-ui
+    spec:
+      containers:
+        - image: joxit/docker-registry-ui:main
+          imagePullPolicy: Always
+          name: registry-ui
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "1024Mi"
+          env:
+            - name: NGINX_PROXY_PASS_URL
+              value: "http://registry"
+            - name: REGISTRY_TITLE
+              value: "Docker Registry"
+            - name: SINGLE_REGISTRY
+              value: "true"
+            - name: DELETE_IMAGES
+              value: "true"
+            - name: REGISTRY_SECURE
+              value: "false"
