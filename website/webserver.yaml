@@ -21,7 +21,7 @@ data:
 
         location ~ \.php$ {
             root           html;
-            fastcgi_pass   php-fpm:9000;
+            fastcgi_pass   corbe-dotnet-php-fpm:9000;
             fastcgi_index  index.php;
             fastcgi_param  SCRIPT_FILENAME  /usr/share/nginx/html/www.corbe.net$fastcgi_script_name;
             include        fastcgi_params;
@@ -35,18 +35,18 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: webserver
+  name: corbe-dotnet
   labels:
-    app: webserver
+    app: corbe-dotnet
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: webserver
+      app: corbe-dotnet
   template:
     metadata:
       labels:
-        app: webserver
+        app: corbe-dotnet
     spec:
       containers:
       - name: php-fpm
@@ -93,10 +93,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: nginx
+  name: corbe-dotnet-nginx
 spec:
   selector:
-    app: webserver
+    app: corbe-dotnet
   ports:
     - protocol: TCP
       port: 80
@@ -105,10 +105,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: php-fpm
+  name: corbe-dotnet-php-fpm
 spec:
   selector:
-    app: webserver
+    app: corbe-dotnet
   ports:
     - port: 9000
 
@@ -116,7 +116,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: nginx-ingress
+  name: corbe-dotnet
   annotations:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/server-alias: www.corbe.net
@@ -135,6 +135,6 @@ spec:
           path: "/"
           backend:
             service:
-              name: nginx 
+              name: corbe-dotnet-nginx 
               port:
                 number: 80
